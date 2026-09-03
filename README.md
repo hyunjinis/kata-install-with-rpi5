@@ -1,7 +1,7 @@
 # kata-install-with-rpi5
 
 ## Environment Setup
-### sudo apt install && sudo apt update && wget https://github.com/kata-containers/kata-containers/releases/download/3.24.0/kata-static-3.24.0-arm64.tar.zst && sudo tar -xvf kata-static-3.24.0-arm64.tar.zst -C / && rm kata-static-3.24.0-arm64.tar.zst && ln -s /opt/kata/bin/kata-runtime /usr/local/bin && ln -s /opt/kata/bin/containerd-shim-kata-v2 /usr/local/bin && ln -s /opt/kata/bin/kata-collect-data.sh /usr/local/bin
+#### sudo apt install && sudo apt update && wget https://github.com/kata-containers/kata-containers/releases/download/3.24.0/kata-static-3.24.0-arm64.tar.zst && sudo tar -xvf kata-static-3.24.0-arm64.tar.zst -C / && rm kata-static-3.24.0-arm64.tar.zst && ln -s /opt/kata/bin/kata-runtime /usr/local/bin && ln -s /opt/kata/bin/containerd-shim-kata-v2 /usr/local/bin && ln -s /opt/kata/bin/kata-collect-data.sh /usr/local/bin
 Reading package lists... Done
 Building dependency tree... Done
 Reading state information... Done
