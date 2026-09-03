@@ -840,6 +840,29 @@ INFO: Fetching NVIDIA driver source code
  Line 766: echo 'Kernel source ready: /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182 '
 Kernel source ready: /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
 
+#### CFG=$(cat kata_config_version)
+#### KDIR="$PWD/kata-linux-6.12.47-$CFG"
+
+#### echo "CFG=$CFG"
+#### echo "KDIR=$KDIR"
+CFG=202
+KDIR=/home/rpi3/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-202
+
+#### "$KDIR/scripts/config" --file "$KDIR/.config" \
+####   -e TCP_CONG_CUBIC \
+####   -e TCP_CONG_BBR \
+####   -e DEFAULT_CUBIC \
+####   -d DEFAULT_BBR
+#### make -C "$KDIR" ARCH=arm64 olddefconfig
+
+#### grep -E 'CONFIG_TCP_CONG_(CUBIC|BBR)|CONFIG_DEFAULT_(CUBIC|BBR)|CONFIG_DEFAULT_TCP_CONG' \
+#### "$KDIR/.config"
+CONFIG_TCP_CONG_CUBIC=y
+CONFIG_TCP_CONG_BBR=y
+CONFIG_DEFAULT_CUBIC=y
+CONFIG_DEFAULT_BBR is not set
+CONFIG_DEFAULT_TCP_CONG="cubic"
+
 #### root@rpi4-desktop:~/kata-containers/tools/packaging/kernel# sudo ./build-kernel.sh -a aarch64 -v 6.12.47 -f -d build && sudo ./build-kernel.sh -a aarch64 -v 6.12.47 -d install
  Line 623: getopts a:b:c:dD:eEfg:hH:k:mp:r:st:u:v:x opt
  Line 695: shift 6
