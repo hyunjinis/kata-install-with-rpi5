@@ -711,7 +711,7 @@ Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/vir
   HOSTCC  scripts/kconfig/util.o
   HOSTLD  scripts/kconfig/conf
 #
-# configuration written to /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+\# configuration written to /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
 #
 Value requested for CONFIG_MEMCG_SWAP not in final .config
 Requested value:  CONFIG_MEMCG_SWAP=y
