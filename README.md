@@ -1,7 +1,7 @@
 # kata-install-with-rpi5
 
 ## Environment Setup
-#### sudo apt install && sudo apt update && wget https://github.com/kata-containers/kata-containers/releases/download/3.24.0/kata-static-3.24.0-arm64.tar.zst && sudo tar -xvf kata-static-3.24.0-arm64.tar.zst -C / && rm kata-static-3.24.0-arm64.tar.zst && ln -s /opt/kata/bin/kata-runtime /usr/local/bin && ln -s /opt/kata/bin/containerd-shim-kata-v2 /usr/local/bin && ln -s /opt/kata/bin/kata-collect-data.sh /usr/local/bin
+#### sudo apt install && sudo apt update && wget https://github.com/kata-containers/kata-containers/releases/download/3.24.0/kata-static-3.24.0-arm64.tar.zst && sudo tar -xvf kata-static-3.24.0-arm64.tar.zst -C / && rm kata-static-3.24.0-arm64.tar.zst && sudo ln -s /opt/kata/bin/kata-runtime /usr/local/bin && sudo ln -s /opt/kata/bin/containerd-shim-kata-v2 /usr/local/bin && sudo ln -s /opt/kata/bin/kata-collect-data.sh /usr/local/bin
 Reading package lists... Done
 Building dependency tree... Done
 Reading state information... Done
@@ -313,3 +313,532 @@ go version go1.22.2 linux/arm64
 #### source "$HOME/.cargo/env" && \
 #### go version && \
 #### rustc --version
+info: downloading installer
+info: profile set to default
+info: default host tuple is aarch64-unknown-linux-gnu
+info: syncing channel updates for stable-aarch64-unknown-linux-gnu
+info: latest update on 2026-08-20 for version 1.98.0 (88d9e12ae 2026-08-18)
+info: downloading 6 components
+        cargo installed                       10.60 MiB                                                                                                                              clippy installed                        3.74 MiB                                                                                                                           rust-docs installed                       22.97 MiB                                                                                                                            rust-std installed                       29.34 MiB                                                                                                                               rustc installed                       63.34 MiB                                                                                                                             rustfmt installed                        2.19 MiB                                                                                                                       info: default toolchain set to stable-aarch64-unknown-linux-gnu
+
+  stable-aarch64-unknown-linux-gnu installed - rustc 1.98.0 (88d9e12ae 2026-08-18)
+
+
+Rust is installed now. Great!
+
+To get started you may need to restart your current shell.
+This would reload your PATH environment variable to include
+Cargo's bin directory ($HOME/.cargo/bin).
+
+To configure your current shell, you need to source the
+corresponding env file under $HOME/.cargo.
+
+Consider running the right command for your shell (note the leading DOT):
+. "$HOME/.cargo/env" # For sh/ash/dash/pdksh/bash
+cargo:rerun-if-env-changed=CC_aarch64-unknown-linux-gnu
+CC_aarch64-unknown-linux-gnu = None
+cargo:rerun-if-env-changed=CC_aarch64_unknown_linux_gnu
+CC_aarch64_unknown_linux_gnu = None
+cargo:rerun-if-env-changed=HOST_CC
+HOST_CC = None
+cargo:rerun-if-env-changed=CC
+CC = None
+cargo:rerun-if-env-changed=CC_ENABLE_DEBUG_OUTPUT
+cargo:rerun-if-env-changed=CRATE_CC_NO_DEFAULTS
+CRATE_CC_NO_DEFAULTS = None
+cargo:rerun-if-env-changed=CFLAGS
+CFLAGS = None
+cargo:rerun-if-env-changed=HOST_CFLAGS
+HOST_CFLAGS = None
+cargo:rerun-if-env-changed=CFLAGS_aarch64_unknown_linux_gnu
+CFLAGS_aarch64_unknown_linux_gnu = None
+cargo:rerun-if-env-changed=CFLAGS_aarch64-unknown-linux-gnu
+CFLAGS_aarch64-unknown-linux-gnu = None
+go version go1.22.2 linux/arm64
+rustc 1.98.0 (88d9e12ae 2026-08-18)
+
+#### go install github.com/mikefarah/yq/v4@v4.52.4 && echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc && source ~/.bashrc && sudo cp $HOME/go/bin/yq /usr/local/bin/ && yq --version && git clone https://github.com/kata-containers/kata-containers.git ~/kata-containers
+go: downloading github.com/mikefarah/yq/v4 v4.52.4
+go: github.com/mikefarah/yq/v4@v4.52.4 requires go >= 1.24.0; switching to go1.26.8
+go: downloading go1.26.8 (linux/arm64)
+go: downloading github.com/spf13/cobra v1.10.2
+go: downloading github.com/spf13/pflag v1.0.10
+go: downloading gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
+go: downloading github.com/a8m/envsubst v1.4.3
+go: downloading github.com/alecthomas/participle/v2 v2.1.4
+go: downloading github.com/dimchansky/utfbom v1.1.1
+go: downloading github.com/elliotchance/orderedmap v1.8.0
+go: downloading github.com/fatih/color v1.18.0
+go: downloading github.com/go-ini/ini v1.67.0
+go: downloading github.com/goccy/go-json v0.10.5
+go: downloading github.com/goccy/go-yaml v1.19.2
+go: downloading github.com/hashicorp/hcl/v2 v2.24.0
+go: downloading github.com/jinzhu/copier v0.4.0
+go: downloading github.com/magiconair/properties v1.8.10
+go: downloading github.com/pelletier/go-toml/v2 v2.2.4
+go: downloading github.com/zclconf/go-cty v1.17.0
+go: downloading github.com/yuin/gopher-lua v1.1.1
+go: downloading go.yaml.in/yaml/v4 v4.0.0-rc.3
+go: downloading golang.org/x/net v0.50.0
+go: downloading golang.org/x/text v0.34.0
+go: downloading github.com/mattn/go-colorable v0.1.14
+go: downloading github.com/mattn/go-isatty v0.0.20
+go: downloading github.com/agext/levenshtein v1.2.1
+go: downloading github.com/apparentlymart/go-textseg/v15 v15.0.0
+go: downloading github.com/mitchellh/go-wordwrap v1.0.1
+go: downloading github.com/google/go-cmp v0.6.0
+go: downloading golang.org/x/sys v0.41.0
+go: github.com/mikefarah/yq/v4@v4.52.4 requires go >= 1.24.0; switching to go1.26.8
+yq (https://github.com/mikefarah/yq/) version v4.52.4
+Cloning into '/home/rpi3/kata-containers'...
+remote: Enumerating objects: 175917, done.
+remote: Counting objects: 100% (1675/1675), done.
+remote: Compressing objects: 100% (764/764), done.
+remote: Total 175917 (delta 1216), reused 911 (delta 911), pack-reused 174242 (from 3)
+Receiving objects: 100% (175917/175917), 100.01 MiB | 24.68 MiB/s, done.
+Resolving deltas: 100% (121156/121156), done.
+
+#### cd kata-containers/tools/packaging/kernel
+#### ~/kata-containers/tools/packaging/kernel# ./build-kernel.sh -a aarch64 -v 6.12.47 -f -d setup
+Line 623: getopts a:b:c:dD:eEfg:hH:k:mp:r:st:u:v:x opt
+ Line 695: shift 6
+ Line 697: subcmd=setup
+ Line 699: '[' -z setup ']'
+ Line 701: [[ '' == \e\x\p\e\r\i\m\e\n\t\a\l ]]
+ Line 712: '[' -z 6.12.47 ']'
+ Line 737: kernel_version=6.12.47
+ Line 739: '[' -z '' ']'
+  Line 740: get_config_version
+  Line 421: get_config_and_patches
+  Line 415: '[' -z '' ']'
+  Line 416: patches_path=/root/kata-containers/tools/packaging/kernel/patches
+  Line 422: config_version_file=/root/kata-containers/tools/packaging/kernel/patches/../kata_config_version
+  Line 423: '[' -f /root/kata-containers/tools/packaging/kernel/patches/../kata_config_version ']'
+  Line 424: cat /root/kata-containers/tools/packaging/kernel/patches/../kata_config_version
+ Line 740: config_version=182
+ Line 741: [[ '' != '' ]]
+ Line 744: kernel_path=/root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+ Line 746: info 'Config version: 182'
+ Line 52: echo 'INFO: Config version: 182'
+INFO: Config version: 182
+ Line 749: info 'Kernel version: 6.12.47'
+ Line 52: echo 'INFO: Kernel version: 6.12.47'
+INFO: Kernel version: 6.12.47
+  Line 751: uname -m
+ Line 751: '[' aarch64 '!=' '' -a aarch64 '!=' aarch64 ']'
+ Line 753: case "${subcmd}" in
+ Line 764: setup_kernel /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+ Line 431: local kernel_path=/root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+ Line 432: '[' -n /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182 ']'
+ Line 434: [[ true == \t\r\u\e ]]
+ Line 434: [[ -d /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182 ]]
+ Line 439: '[' -d /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182 ']'
+ Line 447: info 'kernel path does not exist, will download kernel'
+ Line 52: echo 'INFO: kernel path does not exist, will download kernel'
+INFO: kernel path does not exist, will download kernel
+ Line 448: download_kernel=true
+ Line 449: '[' -n 6.12.47 ']'
+ Line 451: [[ true == \t\r\u\e ]]
+ Line 452: '[' -z '' ']'
+ Line 453: get_kernel 6.12.47 /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+ Line 158: local version=6.12.47
+ Line 160: local kernel_path=/root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+ Line 161: '[' -n /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182 ']'
+ Line 162: '[' '!' -d /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182 ']'
+ Line 165: version=6.12.47
+  Line 167: echo 6.12.47
+  Line 167: cut -d. -f1
+ Line 167: local major_version=6
+  Line 168: echo 6.12.47
+  Line 168: grep -oE '\-rc[0-9]+$'
+ Line 168: local rc=
+ Line 170: local tar_suffix=tar.xz
+ Line 171: '[' -n '' ']'
+ Line 174: kernel_tarball=linux-6.12.47.tar.xz
+ Line 176: '[' -z '' ']'
+ Line 177: [[ -f linux-6.12.47.tar.xz.sha256 ]]
+ Line 181: shasum_url=https://cdn.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc
+ Line 182: info 'Download kernel checksum file: sha256sums.asc from https://cdn.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc'
+ Line 52: echo 'INFO: Download kernel checksum file: sha256sums.asc from https://cdn.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc'
+INFO: Download kernel checksum file: sha256sums.asc from https://cdn.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc
+ Line 183: curl --fail -OL https://cdn.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  198k  100  198k    0     0   115k      0  0:00:01  0:00:01 --:--:--  115k
+ Line 184: grep -F linux-6.12.47.tar.xz sha256sums.asc
+ Line 185: info 'sha256sums.asc is valid, linux-6.12.47.tar.xz.sha256 generated'
+ Line 52: echo 'INFO: sha256sums.asc is valid, linux-6.12.47.tar.xz.sha256 generated'
+INFO: sha256sums.asc is valid, linux-6.12.47.tar.xz.sha256 generated
+ Line 194: '[' -f linux-6.12.47.tar.xz ']'
+ Line 200: '[' '!' -f linux-6.12.47.tar.xz ']'
+ Line 201: kernel_tarball_url=https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.12.47.tar.xz
+ Line 202: '[' -n '' ']'
+ Line 205: info 'Download kernel version 6.12.47'
+ Line 52: echo 'INFO: Download kernel version 6.12.47'
+INFO: Download kernel version 6.12.47
+ Line 206: info 'Download kernel from: https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.12.47.tar.xz'
+ Line 52: echo 'INFO: Download kernel from: https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.12.47.tar.xz'
+INFO: Download kernel from: https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.12.47.tar.xz
+ Line 207: curl --fail -OL https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.12.47.tar.xz
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  141M  100  141M    0     0  61.5M      0  0:00:02  0:00:02 --:--:-- 61.5M
+ Line 212: '[' -z '' ']'
+ Line 213: sha256sum -c linux-6.12.47.tar.xz.sha256
+linux-6.12.47.tar.xz: OK
+ Line 216: tar xf linux-6.12.47.tar.xz
+ Line 218: mv linux-6.12.47 /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+ Line 459: '[' -n /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182 ']'
+ Line 462: get_config_and_patches
+ Line 415: '[' -z '' ']'
+ Line 416: patches_path=/root/kata-containers/tools/packaging/kernel/patches
+ Line 464: '[' -d /root/kata-containers/tools/packaging/kernel/patches ']'
+ Line 466: local major_kernel
+  Line 467: get_major_kernel_version 6.12.47
+  Line 222: local version=6.12.47
+  Line 223: '[' -n 6.12.47 ']'
+   Line 224: echo 6.12.47
+   Line 224: cut -d. -f1
+  Line 224: major_version=6
+   Line 225: echo 6.12.47
+   Line 225: cut -d. -f2
+  Line 225: minor_version=12
+  Line 226: echo 6.12
+ Line 467: major_kernel=6.12
+ Line 468: local patches_dir_for_version=/root/kata-containers/tools/packaging/kernel/patches/6.12.x
+ Line 469: local build_type_patches_dir=/root/kata-containers/tools/packaging/kernel/patches/6.12.x/
+ Line 471: '[' -n aarch64 ']'
+  Line 472: arch_to_kernel aarch64
+  Line 125: local -r arch=aarch64
+  Line 127: case "$arch" in
+  Line 128: echo arm64
+ Line 472: arch_target=arm64
+ Line 474: cd /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+ Line 477: /root/kata-containers/tools/packaging/kernel/../scripts/apply_patches.sh /root/kata-containers/tools/packaging/kernel/patches/6.12.x
+INFO: Apply patches from /root/kata-containers/tools/packaging/kernel/patches/6.12.x
+INFO: Found 0 patches
+ Line 480: '[' '' '!=' '' ']'
+ Line 485: '[' -n '' ']'
+ Line 485: hypervisor_target=kvm
+ Line 486: '[' -n '' ']'
+  Line 486: get_default_kernel_config 6.12.47 kvm arm64 /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+  Line 392: local version=6.12.47
+  Line 394: local hypervisor=kvm
+  Line 395: local kernel_arch=arm64
+  Line 396: local kernel_path=/root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+  Line 398: '[' -n 6.12.47 ']'
+  Line 399: '[' -n kvm ']'
+  Line 400: '[' -n arm64 ']'
+  Line 402: archfragdir=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64
+  Line 403: '[' -d /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64 ']'
+   Line 404: get_kernel_frag_path /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64 /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182 arm64
+   Line 235: local arch_path=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64
+   Line 236: local common_path=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common
+   Line 237: local gpu_path=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../gpu
+   Line 238: local dpu_path=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../dpu
+   Line 240: local kernel_path=/root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+   Line 241: local arch=arm64
+   Line 242: local cmdpath=/root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182/scripts/kconfig/merge_config.sh
+   Line 243: local config_path=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+    Line 245: ls /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/acpi.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/base.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/crypto.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/dt.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/erratum.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/network.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/numa.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/pci.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/ptp.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/rtc.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/serial.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/virtio.conf
+   Line 245: local 'arch_configs=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/acpi.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/base.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/crypto.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/dt.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/erratum.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/network.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/numa.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/pci.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/ptp.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/rtc.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/serial.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/virtio.conf'
+   Line 247: local 'exclude_tags=-e !arm64'
+   Line 250: [[ '' != '' ]]
+    Line 254: grep -e '!arm64' /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/9p.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/acpi.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/base.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/cgroup.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/cpu.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/crypto.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/dax.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/debug.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/elf.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/fs.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/hotplug.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/huge.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/lsm.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mem_agent.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mmio.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mmu.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/namespaces.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/netfilter.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/network.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/pmem.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/seccomp.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/security.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/serial.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/vfio.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/virtio-extras.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/virtio.conf -L
+   Line 254: local 'common_configs=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/9p.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/acpi.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/base.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/cgroup.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/cpu.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/crypto.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/dax.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/debug.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/elf.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/fs.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/hotplug.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/huge.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/lsm.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mem_agent.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mmio.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mmu.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/namespaces.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/netfilter.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/network.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/pmem.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/seccomp.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/security.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/serial.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/vfio.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/virtio-extras.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/virtio.conf'
+   Line 256: local extra_configs=
+   Line 257: '[' '' '!=' '' ']'
+   Line 271: local 'not_in_string=not in final'
+   Line 272: local redefined_string=redefined
+   Line 273: local redundant_string=redundant
+   Line 278: local 'all_configs=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/9p.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/acpi.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/base.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/cgroup.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/cpu.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/crypto.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/dax.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/debug.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/elf.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/fs.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/hotplug.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/huge.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/lsm.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mem_agent.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mmio.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mmu.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/namespaces.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/netfilter.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/network.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/pmem.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/seccomp.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/security.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/serial.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/vfio.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/virtio-extras.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/virtio.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/acpi.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/base.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/crypto.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/dt.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/erratum.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/network.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/numa.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/pci.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/ptp.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/rtc.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/serial.conf
+/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/virtio.conf'
+   Line 279: [[ '' != '' ]]
+   Line 283: [[ '' != '' ]]
+   Line 294: [[ '' != '' ]]
+   Line 300: [[ false == \t\r\u\e ]]
+   Line 307: [[ '' != '' ]]
+   Line 316: [[ '' != '' ]]
+   Line 323: [[ no == \y\e\s ]]
+   Line 329: [[ true == \t\r\u\e ]]
+   Line 330: info 'Remove existing config /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config due to '\''-f'\'''
+   Line 52: echo 'INFO: Remove existing config /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config due to '\''-f'\'''
+INFO: Remove existing config /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config due to '-f'
+   Line 331: '[' -f /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config ']'
+   Line 332: '[' -f /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config.old ']'
+   Line 335: info 'Constructing config from fragments: /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config'
+   Line 52: echo 'INFO: Constructing config from fragments: /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config'
+INFO: Constructing config from fragments: /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+   Line 338: export KCONFIG_CONFIG=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+   Line 338: KCONFIG_CONFIG=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+   Line 339: export ARCH=arm64
+   Line 339: ARCH=arm64
+   Line 340: cd /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+   Line 342: local results
+    Line 343: /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182/scripts/kconfig/merge_config.sh -r -n /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/9p.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/acpi.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/base.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/cgroup.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/cpu.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/crypto.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/dax.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/debug.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/elf.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/fs.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/hotplug.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/huge.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/lsm.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mem_agent.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mmio.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mmu.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/namespaces.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/netfilter.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/network.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/pmem.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/seccomp.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/security.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/serial.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/vfio.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/virtio-extras.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/virtio.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/acpi.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/base.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/crypto.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/dt.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/erratum.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/network.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/numa.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/pci.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/ptp.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/rtc.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/serial.conf /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/virtio.conf
+   Line 343: results='Using /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/9p.conf as base
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/acpi.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/base.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/cgroup.conf
+Value of CONFIG_CGROUP_PERF is redefined by fragment /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/cgroup.conf:
+Previous value: # CONFIG_CGROUP_PERF needs
+New value: CONFIG_CGROUP_PERF=y
+
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/cpu.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/crypto.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/dax.conf
+Value of CONFIG_BLOCK is redundant by fragment /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/dax.conf:
+Value of CONFIG_BLK_DEV is redundant by fragment /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/dax.conf:
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/debug.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/elf.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/fs.conf
+Value of CONFIG_BLK_DEV_LOOP is redefined by fragment /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/fs.conf:
+Previous value: # CONFIG_BLK_DEV_LOOP needs
+New value: CONFIG_BLK_DEV_LOOP=y
+
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/hotplug.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/huge.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/lsm.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mem_agent.conf
+Value of CONFIG_DEBUG_FS is redundant by fragment /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mem_agent.conf:
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mmio.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/mmu.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/namespaces.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/netfilter.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/network.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/pmem.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/seccomp.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/security.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/serial.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/vfio.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/virtio-extras.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/../common/virtio.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/acpi.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/base.conf
+Value of CONFIG_PERF_EVENTS is redundant by fragment /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/base.conf:
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/crypto.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/dt.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/erratum.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/network.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/numa.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/pci.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/ptp.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/rtc.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/serial.conf
+Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/virtio.conf
+  HOSTCC  scripts/basic/fixdep
+  HOSTCC  scripts/kconfig/conf.o
+  HOSTCC  scripts/kconfig/confdata.o
+  HOSTCC  scripts/kconfig/expr.o
+  LEX     scripts/kconfig/lexer.lex.c
+  YACC    scripts/kconfig/parser.tab.[ch]
+  HOSTCC  scripts/kconfig/lexer.lex.o
+  HOSTCC  scripts/kconfig/menu.o
+  HOSTCC  scripts/kconfig/parser.tab.o
+  HOSTCC  scripts/kconfig/preprocess.o
+  HOSTCC  scripts/kconfig/symbol.o
+  HOSTCC  scripts/kconfig/util.o
+  HOSTLD  scripts/kconfig/conf
+#
+# configuration written to /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+#
+Value requested for CONFIG_MEMCG_SWAP not in final .config
+Requested value:  CONFIG_MEMCG_SWAP=y
+Actual value:
+
+Value requested for CONFIG_MEMCG_SWAP_ENABLED not in final .config
+Requested value:  CONFIG_MEMCG_SWAP_ENABLED=y
+Actual value:
+
+Value requested for CONFIG_CRYPTO_SELFTESTS not in final .config
+Requested value:  CONFIG_CRYPTO_SELFTESTS=y
+Actual value:
+
+Value requested for CONFIG_CRC_OPTIMIZATIONS not in final .config
+Requested value:  CONFIG_CRC_OPTIMIZATIONS=y
+Actual value:
+
+Value requested for CONFIG_MHP_DEFAULT_ONLINE_TYPE_ONLINE_AUTO not in final .config
+Requested value:  CONFIG_MHP_DEFAULT_ONLINE_TYPE_ONLINE_AUTO=y
+Actual value:
+
+Value requested for CONFIG_NETFILTER_XTABLES_LEGACY not in final .config
+Requested value:  CONFIG_NETFILTER_XTABLES_LEGACY=y
+Actual value:
+
+Value requested for CONFIG_NF_LOG_COMMON not in final .config
+Requested value:  CONFIG_NF_LOG_COMMON=y
+Actual value:
+
+Value requested for CONFIG_NF_NAT_NEEDED not in final .config
+Requested value:  CONFIG_NF_NAT_NEEDED=y
+Actual value:
+
+Value requested for CONFIG_NF_NAT_PROTO_DCCP not in final .config
+Requested value:  CONFIG_NF_NAT_PROTO_DCCP=y
+Actual value:
+
+Value requested for CONFIG_NF_NAT_PROTO_UDPLITE not in final .config
+Requested value:  CONFIG_NF_NAT_PROTO_UDPLITE=y
+Actual value:
+
+Value requested for CONFIG_NF_NAT_PROTO_SCTP not in final .config
+Requested value:  CONFIG_NF_NAT_PROTO_SCTP=y
+Actual value:
+
+Value requested for CONFIG_NF_NAT_PROTO_GRE not in final .config
+Requested value:  CONFIG_NF_NAT_PROTO_GRE=y
+Actual value:
+
+Value requested for CONFIG_NF_NAT_IPV4 not in final .config
+Requested value:  CONFIG_NF_NAT_IPV4=y
+Actual value:
+
+Value requested for CONFIG_GENERIC_MSI_IRQ_DOMAIN not in final .config
+Requested value:  CONFIG_GENERIC_MSI_IRQ_DOMAIN=y
+Actual value:
+
+Value requested for CONFIG_ARM64_CRYPTO not in final .config
+Requested value:  CONFIG_ARM64_CRYPTO=y
+Actual value:
+
+Value requested for CONFIG_HAVE_NET_DSA not in final .config
+Requested value:  CONFIG_HAVE_NET_DSA=y
+Actual value:
+
+Value requested for CONFIG_PCI_MSI_IRQ_DOMAIN not in final .config
+Requested value:  CONFIG_PCI_MSI_IRQ_DOMAIN=y
+Actual value:     '
+    Line 345: grep 'not in final'
+   Line 345: results='Value requested for CONFIG_MEMCG_SWAP not in final .config
+Value requested for CONFIG_MEMCG_SWAP_ENABLED not in final .config
+Value requested for CONFIG_CRYPTO_SELFTESTS not in final .config
+Value requested for CONFIG_CRC_OPTIMIZATIONS not in final .config
+Value requested for CONFIG_MHP_DEFAULT_ONLINE_TYPE_ONLINE_AUTO not in final .config
+Value requested for CONFIG_NETFILTER_XTABLES_LEGACY not in final .config
+Value requested for CONFIG_NF_LOG_COMMON not in final .config
+Value requested for CONFIG_NF_NAT_NEEDED not in final .config
+Value requested for CONFIG_NF_NAT_PROTO_DCCP not in final .config
+Value requested for CONFIG_NF_NAT_PROTO_UDPLITE not in final .config
+Value requested for CONFIG_NF_NAT_PROTO_SCTP not in final .config
+Value requested for CONFIG_NF_NAT_PROTO_GRE not in final .config
+Value requested for CONFIG_NF_NAT_IPV4 not in final .config
+Value requested for CONFIG_GENERIC_MSI_IRQ_DOMAIN not in final .config
+Value requested for CONFIG_ARM64_CRYPTO not in final .config
+Value requested for CONFIG_HAVE_NET_DSA not in final .config
+Value requested for CONFIG_PCI_MSI_IRQ_DOMAIN not in final .config'
+    Line 347: grep -v -f /root/kata-containers/tools/packaging/kernel/configs/fragments/whitelist.conf
+   Line 347: results=
+   Line 348: local version_config_whitelist=/root/kata-containers/tools/packaging/kernel/configs/fragments/whitelist-6.12.47.conf
+   Line 349: '[' -f /root/kata-containers/tools/packaging/kernel/configs/fragments/whitelist-6.12.47.conf ']'
+   Line 353: [[ false == \t\r\u\e ]]
+    Line 356: echo
+    Line 356: grep -v -q 'not in final'
+    Line 356: echo 0
+   Line 356: local missing=0
+   Line 357: '[' 0 -ne 0 ']'
+    Line 365: echo
+    Line 365: grep -v -q redefined
+    Line 365: echo 0
+   Line 365: local redefined=0
+   Line 366: '[' 0 -ne 0 ']'
+    Line 375: echo
+    Line 375: grep -v -q redundant
+    Line 375: echo 0
+   Line 375: local redundant=0
+   Line 376: '[' 0 -ne 0 ']'
+   Line 383: echo /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+  Line 404: config=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+  Line 410: '[' -f /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config ']'
+  Line 411: echo /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+ Line 486: kernel_config_path=/root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+ Line 488: info 'Copying config file from: /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config'
+ Line 52: echo 'INFO: Copying config file from: /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config'
+INFO: Copying config file from: /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+ Line 489: cp /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config ./.config
+ Line 490: ARCH=arm64
+ Line 490: make oldconfig
+#
+# No change to .config
+#
+ Line 493: info 'Fetching NVIDIA driver source code'
+ Line 52: echo 'INFO: Fetching NVIDIA driver source code'
+INFO: Fetching NVIDIA driver source code
+ Line 494: [[ '' == \n\v\i\d\i\a ]]
+ Line 765: '[' -d /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182 ']'
+ Line 766: echo 'Kernel source ready: /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182 '
+Kernel source ready: /root/kata-containers/tools/packaging/kernel/kata-linux-6.12.47-182
+
+#### cd ..
+#### root@rpi4-desktop:~/kata-containers/tools/packaging/kernel# ./build-kernel.sh -a aarch64 -v 6.12.47 -f -d build && ./build-kernel.sh -a aarch64 -v 6.12.47 -d install
