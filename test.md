@@ -732,8 +732,8 @@ For example:
 [plugins."io.containerd.cri.v1.runtime".containerd.runtimes.runc]
   runtime_type = "io.containerd.runc.v2"
 
-[plugins."io.containerd.cri.v1.runtime".containerd.runtimes.runc.options]
-  SystemdCgroup = true
+  [plugins."io.containerd.cri.v1.runtime".containerd.runtimes.runc.options]
+    SystemdCgroup = true
 
 [plugins."io.containerd.cri.v1.runtime".containerd.runtimes.kata]
   runtime_type = "io.containerd.kata.v2"
