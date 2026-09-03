@@ -710,9 +710,9 @@ Merging /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/vir
   HOSTCC  scripts/kconfig/symbol.o
   HOSTCC  scripts/kconfig/util.o
   HOSTLD  scripts/kconfig/conf
-#
-\# configuration written to /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
-#
+
+/# configuration written to /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config
+
 Value requested for CONFIG_MEMCG_SWAP not in final .config
 Requested value:  CONFIG_MEMCG_SWAP=y
 Actual value:
@@ -829,9 +829,9 @@ INFO: Copying config file from: /root/kata-containers/tools/packaging/kernel/con
  Line 489: cp /root/kata-containers/tools/packaging/kernel/configs/fragments/arm64/.config ./.config
  Line 490: ARCH=arm64
  Line 490: make oldconfig
-#
-# No change to .config
-#
+
+/# No change to .config
+
  Line 493: info 'Fetching NVIDIA driver source code'
  Line 52: echo 'INFO: Fetching NVIDIA driver source code'
 INFO: Fetching NVIDIA driver source code
