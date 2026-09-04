@@ -1,137 +1,181 @@
-Netperf Experiments with Kata Containers and ACA on Raspberry Pi
+# Netperf Experiments with Kata Containers and ACA on Raspberry Pi
 
-This document describes how to run the network-performance experiments in a Kata Containers microVM environment and how to configure ACA (Affinity-aware CPU Allocation) by controlling the host-side Kata vCPU thread affinity.
+This document describes how to run network-performance experiments in a **Kata Containers microVM environment** and how to configure **ACA (Affinity-aware CPU Allocation)** by controlling the host-side Kata vCPU thread affinity.
 
-The experiment uses:
-
-Kata Containers       3.24.0
-Architecture          aarch64
-Guest kernel          Linux 6.12.47
-TCP CCA               CUBIC
-Container image       jjong2/all:latest
-Netperf server        192.168.0.5:12865
-Netperf test          TCP_STREAM
-Message sizes         64, 128, 256, 512, 1024 B
-Netperf duration      300 s
-Monitoring interval   10 s
-Samples               13
+> **Environment**
+>
+> - Kata Containers: `3.24.0`
+> - Architecture: `aarch64`
+> - Guest kernel: `Linux 6.12.47`
+> - TCP congestion control: `CUBIC`
+> - Container image: `jjong2/all:latest`
+> - Netperf server: `192.168.0.5:12865`
+> - Netperf test: `TCP_STREAM`
+> - Message sizes: `64`, `128`, `256`, `512`, `1024 B`
+> - Netperf duration: `300 s`
+> - Monitoring interval: `10 s`
+> - Number of monitoring samples: `13`
 
 In the original container experiments, workload CPU affinity was controlled through the Pod cgroup.
 
-In Kata Containers, the workload executes inside the guest VM. From the host perspective, guest workload execution is represented by the VMM's vCPU thread.
+In Kata Containers, the workload executes inside the guest VM. From the host perspective, guest workload execution is represented by the VMM's **vCPU thread**.
 
 Therefore, ACA is applied by restricting the Kata vCPU thread to CPU cores excluding the cores used for NIC interrupt and softirq processing.
 
-1. Create the Kata Experiment Container
+---
 
-The experiment image contains netperf, vnstat, mpstat, and pidstat.
+# 1. Create the Kata Experiment Container
+
+The experiment image contains `netperf`, `vnstat`, `mpstat`, and `pidstat`.
 
 Remove an existing experiment container if necessary.
 
+**Command**
+
+```bash
 sudo nerdctl rm -f \
-kata-test \
-2>/dev/null || true
+  kata-test \
+  2>/dev/null || true
+```
 
 Create a persistent Kata container.
 
+```bash
 sudo nerdctl run -d \
---name kata-test \
---runtime io.containerd.kata.v2 \
-jjong2/all:latest \
-sleep infinity
+  --name kata-test \
+  --runtime io.containerd.kata.v2 \
+  jjong2/all:latest \
+  sleep infinity
+```
 
 Verify:
 
+```bash
 sudo nerdctl ps
+```
 
 Example:
 
+```text
 CONTAINER ID    IMAGE                         COMMAND           STATUS    NAMES
 xxxxxxxxxxxx    docker.io/jjong2/all:latest   "sleep infinity"  Up        kata-test
-2. Verify the Kata Guest Environment
-2.1 Check the guest kernel
+```
+
+---
+
+# 2. Verify the Kata Guest Environment
+
+## 2.1 Check the guest kernel
+
+```bash
 sudo nerdctl exec \
-kata-test \
-uname -r
+  kata-test \
+  uname -r
+```
 
 Expected:
 
+```text
 6.12.47
-2.2 Check the actual guest-kernel image
+```
 
-Because both the baseline and Pre-GSO kernels report 6.12.47, uname -r alone cannot distinguish them.
+---
+
+## 2.2 Check the actual guest-kernel image
+
+Because both the baseline and Pre-GSO kernels report `6.12.47`, `uname -r` alone cannot distinguish them.
 
 Check the kernel selected by Kata:
 
+```bash
 sudo kata-runtime env \
-| grep -A5 '\[Kernel\]'
+  | grep -A5 '\[Kernel\]'
+```
 
 For the baseline CUBIC kernel:
 
+```text
 [Kernel]
 
   Path = "/opt/kata/share/kata-containers/vmlinux-6.12.47-202"
+```
 
 For the Pre-GSO CUBIC kernel:
 
+```text
 [Kernel]
 
   Path = "/opt/kata/share/kata-containers/vmlinux-6.12.47-custom-cubic"
-2.3 Verify CUBIC
+```
+
+---
+
+## 2.3 Verify CUBIC
 
 Check the active TCP congestion-control algorithm.
 
+```bash
 sudo nerdctl exec \
-kata-test \
-sysctl net.ipv4.tcp_congestion_control
+  kata-test \
+  sysctl net.ipv4.tcp_congestion_control
+```
 
 Expected:
 
+```text
 net.ipv4.tcp_congestion_control = cubic
+```
 
-Check all available CCAs.
+Check all available congestion-control algorithms.
 
+```bash
 sudo nerdctl exec \
-kata-test \
-sysctl net.ipv4.tcp_available_congestion_control
+  kata-test \
+  sysctl net.ipv4.tcp_available_congestion_control
+```
 
 Observed:
 
+```text
 net.ipv4.tcp_available_congestion_control = reno bbr cubic
-2.4 Check required experiment tools
-sudo nerdctl exec \
-kata-test \
-which netperf
+```
 
-sudo nerdctl exec \
-kata-test \
-which vnstat
+---
 
-sudo nerdctl exec \
-kata-test \
-which mpstat
+## 2.4 Check required experiment tools
 
-sudo nerdctl exec \
-kata-test \
-which pidstat
+```bash
+sudo nerdctl exec kata-test which netperf
+sudo nerdctl exec kata-test which vnstat
+sudo nerdctl exec kata-test which mpstat
+sudo nerdctl exec kata-test which pidstat
+```
 
 Expected:
 
+```text
 /usr/bin/netperf
 /usr/bin/vnstat
 /usr/bin/mpstat
 /usr/bin/pidstat
-3. Find the Kata QEMU Process
+```
+
+---
+
+# 3. Find the Kata QEMU Process
 
 ACA must be applied to the host-side vCPU execution thread of the Kata microVM.
 
 Find the QEMU process.
 
-pgrep -af \
-qemu
+```bash
+pgrep -af qemu
+```
 
-<details> <summary><strong>Show actual terminal output</strong></summary>
+<details>
+<summary><strong>Show actual terminal output</strong></summary>
 
+```text
 399594 /opt/kata/bin/qemu-system-aarch64 \
 -name sandbox-95d758e36e93141e3ee569c653f485b7a2589047975dbac9e71327e58fb5b41b \
 -uuid 460d3a75-88dc-4441-9fa3-698e7da2f094 \
@@ -141,39 +185,50 @@ qemu
 -kernel /opt/kata/share/kata-containers/vmlinux-6.12.47-custom-cubic \
 ...
 -smp 1,cores=1,threads=1,sockets=4,maxcpus=4
+```
 
 </details>
 
 The important information is:
 
+```text
 QEMU PID = 399594
 
 -smp 1
+```
 
--smp 1 means that the current Kata VM is running with one active vCPU.
+`-smp 1` means that the current Kata VM is running with one active vCPU.
 
-The PID changes whenever the Kata microVM is recreated.
-
-Never hard-code 399594 into a permanent experiment script.
+> The QEMU PID changes whenever the Kata microVM is recreated.
+>
+> Do not permanently hard-code `399594`.
 
 A convenient command is:
 
+```bash
 QEMU_PID=$(pgrep -f \
-'^/opt/kata/bin/qemu-system-aarch64 ' \
-| head -n 1)
+  '^/opt/kata/bin/qemu-system-aarch64 ' \
+  | head -n 1)
 
-echo \
-"QEMU_PID=$QEMU_PID"
-4. Inspect QEMU Threads
+echo "QEMU_PID=$QEMU_PID"
+```
 
-Use the QEMU PID to inspect all QEMU threads.
+---
 
+# 4. Inspect QEMU Threads
+
+Inspect all threads belonging to the QEMU process.
+
+```bash
 ps -T \
--p "$QEMU_PID" \
--o pid,tid,psr,pcpu,comm
+  -p "$QEMU_PID" \
+  -o pid,tid,psr,pcpu,comm
+```
 
-<details> <summary><strong>Show actual terminal output</strong></summary>
+<details>
+<summary><strong>Show actual terminal output</strong></summary>
 
+```text
     PID     TID PSR %CPU COMMAND
  399594  399594   2  0.0 qemu-system-aar
  399594  399595   1  0.0 qemu-system-aar
@@ -181,35 +236,40 @@ ps -T \
  399594  399605   0 74.0 qemu-system-aar
  399594  399606   3  0.0 vhost-399594
  399594  399707   3 45.0 vhost-399594
+```
 
 </details>
 
 In this example:
 
+```text
 QEMU PID       = 399594
 vCPU TID       = 399605
 
 vhost threads  = 399606
                  399707
+```
 
 The vCPU thread is the host-side execution entity corresponding to guest workload execution.
 
-The vhost-* threads are host-side virtual-I/O processing threads and should not be treated as the guest workload vCPU thread.
+The `vhost-*` threads are host-side virtual-I/O processing threads and should not be treated as the guest workload vCPU thread.
 
-5. Verify the vCPU Thread Using cgroups
+---
 
-To distinguish the vCPU execution thread from QEMU overhead and vhost threads, inspect each thread's cgroup.
+# 5. Verify the vCPU Thread Using cgroups
 
+To help distinguish the vCPU execution thread from QEMU overhead and vhost threads, inspect the cgroup of each thread.
+
+```bash
 QEMU_PID=$(pgrep -f \
-'^/opt/kata/bin/qemu-system-aarch64 ' \
-| head -n 1)
+  '^/opt/kata/bin/qemu-system-aarch64 ' \
+  | head -n 1)
 
 for task in /proc/$QEMU_PID/task/*; do
 
     tid=$(basename "$task")
 
     echo "================================"
-
     echo "TID: $tid"
 
     echo -n "NAME: "
@@ -219,248 +279,337 @@ for task in /proc/$QEMU_PID/task/*; do
     cat "$task/cgroup"
 
 done
-
-With the default Kata cgroup configuration, the vCPU thread is associated with the workload/sandbox CPU context while other VMM overhead threads may be placed separately.
+```
 
 Use this information together with:
 
+```bash
 ps -T \
--p "$QEMU_PID" \
--o pid,tid,psr,pcpu,comm
+  -p "$QEMU_PID" \
+  -o pid,tid,psr,pcpu,comm
+```
 
 to identify the vCPU TID.
 
-Always identify the vCPU TID again after recreating the Kata VM.
+> Always identify the vCPU TID again after recreating the Kata VM.
 
-6. ACA CPU Layout
+---
+
+# 6. ACA CPU Layout
 
 The Raspberry Pi used in the experiment has four host CPU cores:
 
+```text
 CPU 0
 CPU 1
 CPU 2
 CPU 3
+```
 
 An example ACA configuration is:
 
+```text
 CPU 0,1
     NIC IRQ
     network softirq processing
 
 CPU 2,3
     Kata vCPU workload execution
+```
 
 Therefore:
 
+```text
 ACA OFF:
 vCPU allowed CPUs = 0-3
 
 ACA ON:
 vCPU allowed CPUs = 2,3
+```
 
-The exact network-processing cores should match the IRQ-affinity configuration used in the experiment.
+The exact workload cores must match the network-interrupt affinity configuration used in the experiment.
 
-7. Check NIC Interrupt Affinity
+---
 
-First identify the IRQ associated with the physical network interface.
+# 7. Check NIC Interrupt Affinity
 
+First inspect the host interrupts.
+
+```bash
+cat /proc/interrupts
+```
+
+The relevant network interrupt can also be searched using the interface or driver name.
+
+```bash
+grep -iE \
+  'eth|genet|bcm' \
+  /proc/interrupts
+```
+
+After identifying the IRQ number:
+
+```bash
 cat \
-/proc/interrupts
-
-or:
-
-grep -i \
-'eth\|genet\|bcm' \
-/proc/interrupts
-
-After identifying the relevant IRQ number:
-
-cat \
-/proc/irq/<IRQ>/smp_affinity_list
+  /proc/irq/<IRQ>/smp_affinity_list
+```
 
 Example:
 
+```text
 0-1
+```
 
-This means that the NIC interrupt is restricted to CPUs 0 and 1.
+This means that the corresponding NIC interrupt can run on CPUs 0 and 1.
 
-The ACA workload CPU set should therefore exclude these cores.
+The ACA workload CPU set should exclude these network-processing cores.
 
-8. Disable ACA
+---
+
+# 8. Disable ACA
 
 ACA OFF allows the Kata vCPU thread to execute on all host CPUs.
 
-Assume:
+For example:
 
+```text
+QEMU PID = 399594
 vCPU TID = 399605
+```
 
-Run:
+Set the vCPU affinity to all four host CPUs.
 
+```bash
 sudo taskset -pc \
-0-3 \
-399605
+  0-3 \
+  399605
+```
 
-<details> <summary><strong>Show actual terminal output</strong></summary>
+<details>
+<summary><strong>Show actual terminal output</strong></summary>
 
+```text
 pid 399605's current affinity list: 1-3
 pid 399605's new affinity list: 0-3
+```
 
 </details>
 
 Verify:
 
+```bash
 taskset -pc \
-399605
+  399605
+```
 
 Expected:
 
+```text
 pid 399605's current affinity list: 0-3
+```
 
-Also check the Linux status file.
+Also verify through `/proc`.
 
+```bash
 grep \
-Cpus_allowed_list \
-/proc/399594/task/399605/status
+  Cpus_allowed_list \
+  /proc/399594/task/399605/status
+```
 
 Expected:
 
+```text
 Cpus_allowed_list:    0-3
+```
 
 This configuration corresponds to:
 
+```text
 ACA = OFF
-9. Enable ACA
+```
 
-Assume:
+---
 
-NIC/network cores = 0,1
+# 9. Enable ACA
 
-Kata workload cores = 2,3
+Assume that the experimental CPU assignment is:
 
-Apply the vCPU affinity.
+```text
+NIC/network cores = CPU 0,1
 
+Kata workload cores = CPU 2,3
+```
+
+Restrict the Kata vCPU thread to CPUs 2 and 3.
+
+```bash
 sudo taskset -pc \
-2,3 \
-399605
+  2,3 \
+  399605
+```
 
 Expected:
 
+```text
 pid 399605's current affinity list: 0-3
 pid 399605's new affinity list: 2,3
+```
 
 Verify:
 
+```bash
 taskset -pc \
-399605
+  399605
+```
 
 Expected:
 
+```text
 pid 399605's current affinity list: 2,3
+```
 
-Also verify using /proc.
+Also verify through `/proc`.
 
+```bash
 grep \
-Cpus_allowed_list \
-/proc/399594/task/399605/status
+  Cpus_allowed_list \
+  /proc/399594/task/399605/status
+```
 
 Expected:
 
+```text
 Cpus_allowed_list:    2-3
+```
 
 This configuration corresponds to:
 
+```text
 ACA = ON
-10. Important: Do Not Pin the Entire QEMU Process
+```
 
-Do not use:
+---
 
+# 10. Do Not Pin the Entire QEMU Process
+
+Do not use the following command for the ACA experiment:
+
+```bash
 sudo taskset -apc \
-2,3 \
-<QEMU_PID>
+  2,3 \
+  <QEMU_PID>
+```
 
-for the ACA experiment.
+The `-a` option changes the affinity of all QEMU threads.
 
-The -a option changes the affinity of all QEMU threads, including:
+This may include:
 
+```text
 vCPU threads
 QEMU main thread
 vhost threads
 I/O-related threads
+```
 
-The original ACA mechanism isolates the workload execution context from network-processing cores.
+ACA is intended to isolate the workload execution context from the CPU cores responsible for network interrupt processing.
 
-Therefore, the corresponding Kata implementation should control the vCPU execution thread, rather than arbitrarily moving the entire VMM.
+Therefore, only the identified vCPU execution thread should be controlled.
 
 Correct:
 
+```bash
 sudo taskset -pc \
-2,3 \
-<VCPU_TID>
-11. Verify Actual vCPU Execution During the Experiment
+  2,3 \
+  <VCPU_TID>
+```
 
-The affinity configuration defines where the thread is allowed to run.
+---
 
-To verify which physical CPU the vCPU thread actually uses during runtime, use thread-level pidstat.
+# 11. Verify Actual vCPU Execution During the Experiment
 
+The `taskset` configuration specifies where the vCPU thread is allowed to execute.
+
+To verify which host CPU the thread actually runs on during the experiment, use thread-level `pidstat`.
+
+```bash
 pidstat \
--t \
--p "$QEMU_PID" \
-1 10
+  -t \
+  -p "$QEMU_PID" \
+  1 10
+```
 
-The important columns are:
+The important fields are:
 
+```text
 TID
 %CPU
 CPU
+```
 
-Example:
+For example:
 
+```text
 PID      TID      %usr   %system   %CPU   CPU   Command
 
 399594   399605    ...     ...      75.0     2   qemu-system-aar
 399594   399605    ...     ...      72.0     3   qemu-system-aar
+```
 
-With ACA enabled, the vCPU TID should only appear on:
+With ACA enabled, the vCPU TID should only be observed on:
 
+```text
 CPU 2
 CPU 3
+```
 
-and should not appear on:
+and should not execute on:
 
+```text
 CPU 0
 CPU 1
-12. Guest and Host Measurements
+```
 
-The following measurements are collected.
+---
 
-File	Measurement
-vnstat_guest.txt	TX throughput and packet rate observed at the Kata guest interface
-mpstat_guest.txt	Guest CPU utilization
-pidstat_netperf_guest.txt	CPU utilization of the guest netperf process
-pidstat_vcpu_host.txt	Host CPU utilization and CPU placement of QEMU/vCPU threads
-netperf.txt	netperf program output
-affinity_check.txt	vCPU affinity configuration
-environment.txt	Kernel, CCA, QEMU PID, vCPU TID, etc.
+# 12. Measurements Collected During the Experiment
 
-Guest-interface PPS should not automatically be interpreted as physical wire PPS.
+The following files are collected for each netperf message size.
 
-GSO and virtual networking may cause guest-side packet counters to represent aggregated transmission units.
+| File | Description |
+|---|---|
+| `vnstat_guest.txt` | TX throughput and packet rate observed at the Kata guest interface |
+| `mpstat_guest.txt` | Guest CPU utilization |
+| `pidstat_netperf_guest.txt` | CPU utilization of the guest `netperf` process |
+| `pidstat_vcpu_host.txt` | Host-side QEMU/vCPU thread CPU usage and CPU placement |
+| `netperf.txt` | Netperf program output |
+| `affinity_check.txt` | vCPU affinity configuration |
+| `environment.txt` | Guest kernel, CCA, QEMU PID, vCPU TID, and other experiment information |
 
-13. Manual netperf Test
+> Guest-interface PPS should not automatically be interpreted as physical wire PPS.
+>
+> GSO and the virtual network stack can cause guest-side packet counters to represent aggregated transmission units.
 
-A short manual test can be run before starting the full experiment.
+---
 
+# 13. Manual netperf Test
+
+Before running the full experiment, a short test can be executed.
+
+```bash
 sudo nerdctl exec \
-kata-test \
-netperf \
--H 192.168.0.5 \
--p 12865 \
--l 30 \
--- \
--m 64
+  kata-test \
+  netperf \
+  -H 192.168.0.5 \
+  -p 12865 \
+  -l 30 \
+  -- \
+  -m 64
+```
 
-<details> <summary><strong>Show actual terminal output</strong></summary>
+<details>
+<summary><strong>Show actual terminal output</strong></summary>
 
+```text
 MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.0.5 () port 0 AF_INET : demo
 
 Recv   Send    Send
@@ -469,100 +618,131 @@ Size   Size    Size     Time     Throughput
 bytes  bytes   bytes    secs.    10^6bits/sec
 
 131072 16384      64    30.02       888.31
+```
 
 </details>
 
-The -m 64 option specifies a 64-byte netperf send-message size.
+The `-m 64` option specifies a **64-byte send-message size** for netperf.
 
-It does not necessarily mean that every physical Ethernet frame is 64 bytes.
+It does not mean that every physical Ethernet frame transmitted by the NIC is exactly 64 bytes.
 
-14. Test Guest vnstat Correctly
+---
 
-vnstat must be executed while netperf is running.
+# 14. Measure vnstat While netperf Is Running
 
-Incorrect:
+`vnstat` must be executed while netperf traffic is active.
 
-run netperf for 30 s
+Incorrect sequence:
+
+```text
+netperf -l 30
         ↓
-wait until netperf terminates
+wait 30 s
         ↓
-run vnstat
+netperf terminates
+        ↓
+vnstat -tr 10
         ↓
 0 traffic
+```
 
-Correct:
+Correct sequence:
 
-start netperf
+```text
+start netperf in background
         ↓
-netperf continues in background
+wait for traffic to stabilize
         ↓
-run vnstat while traffic is active
+measure vnstat while netperf is active
+```
 
 Example:
 
+```bash
 sudo nerdctl exec \
-kata-test \
-netperf \
--H 192.168.0.5 \
--p 12865 \
--l 30 \
--- \
--m 64 \
-> /tmp/netperf64.txt 2>&1 &
+  kata-test \
+  netperf \
+  -H 192.168.0.5 \
+  -p 12865 \
+  -l 30 \
+  -- \
+  -m 64 \
+  > /tmp/netperf64.txt 2>&1 &
+```
 
-Wait for the flow to stabilize.
+Wait for traffic to stabilize.
 
+```bash
 sleep 2
+```
 
 Measure guest traffic.
 
+```bash
 sudo nerdctl exec \
-kata-test \
-vnstat \
--i eth0 \
--tr 10
-15. Original Experimental Measurement Structure
+  kata-test \
+  vnstat \
+  -i eth0 \
+  -tr 10
+```
 
-The revised Kata experiment preserves the structure of the previous container experiment.
+---
+
+# 15. Experimental Measurement Structure
+
+The Kata experiment preserves the measurement structure used in the previous container experiment.
 
 For each message size:
 
+```text
 1. Start one TCP_STREAM netperf flow
    netperf -l 300
 
 2. Wait 1 second
 
 3. Repeat 13 times:
-       - vnstat for 10 s
-       - pidstat for 10 s
-       - mpstat for 10 s
 
-4. Wait approximately 3 s between monitoring windows
+   - Measure guest TX throughput/PPS for 10 seconds
+   - Measure netperf process CPU usage for 10 seconds
+   - Measure guest CPU usage for 10 seconds
+   - Measure host QEMU/vCPU thread usage for 10 seconds
+
+4. Wait approximately 3 seconds between samples
 
 5. Stop netperf
 
-6. Move to the next message size
+6. Wait 10 seconds
+
+7. Continue with the next message size
+```
 
 Message sizes:
 
+```text
 64 B
 128 B
 256 B
 512 B
 1024 B
-16. Full Master-Side Kata Experiment Script
+```
 
-The Kata container runs on the Raspberry Pi worker.
+---
 
-Therefore, when the experiment script is executed from the Kubernetes/master machine, all nerdctl commands must be executed through SSH on the worker.
+# 16. Full Master-Side Experiment Script
+
+The Kata microVM is running on the Raspberry Pi worker.
+
+When this script is executed on the master machine, commands for the Kata container must therefore be executed through SSH on the worker.
 
 Create:
 
-nano \
-kata_netperf.sh
+```bash
+nano kata_netperf.sh
+```
 
-Paste:
+Paste the following script.
 
+```bash
 #!/bin/bash
 
 set -u
@@ -597,21 +777,31 @@ NETPERF_TIME=300
 # ACA configuration
 # ============================================================
 
-# Set:
+# ACA_MODE:
 #
-#   off : allow the vCPU thread on all host cores
-#   on  : restrict the vCPU thread to workload cores
+#   off : vCPU can execute on all host CPU cores.
+#   on  : vCPU is restricted to workload cores.
 #
 ACA_MODE="off"
 
 ALL_CORES="0-3"
+
+# Example:
+# Network processing = CPU 0,1
+# Workload execution = CPU 2,3
+#
 ACA_CORES="2,3"
 
 # IMPORTANT:
-# Update this after recreating the Kata VM.
 #
-# Example:
-# VCPU_TID="399605"
+# The vCPU TID changes whenever the Kata VM is recreated.
+#
+# Run:
+#
+#   pgrep -af qemu
+#   ps -T -p <QEMU_PID> -o pid,tid,psr,pcpu,comm
+#
+# and update this value before the experiment.
 #
 VCPU_TID="<VCPU_TID>"
 
@@ -644,14 +834,16 @@ echo
 echo "[1] Check Kata container"
 
 remote \
-"echo '$SUDO_PASS' | sudo -S -p '' nerdctl ps"
+"echo '$SUDO_PASS' | sudo -S -p '' \
+nerdctl ps"
 
 echo
 echo "[2] Check guest kernel"
 
 remote \
 "echo '$SUDO_PASS' | sudo -S -p '' \
-nerdctl exec '$CONTAINER_NAME' uname -r"
+nerdctl exec '$CONTAINER_NAME' \
+uname -r"
 
 echo
 echo "[3] Check guest TCP congestion control"
@@ -668,8 +860,8 @@ if [ "$CCA" != "cubic" ]; then
     echo
     echo "ERROR:"
     echo "TCP congestion control is not CUBIC."
-    exit 1
 
+    exit 1
 fi
 
 # ============================================================
@@ -682,9 +874,11 @@ QEMU_PID=$(remote \
 
 if [ -z "$QEMU_PID" ]; then
 
-    echo "ERROR: Kata QEMU process was not found."
-    exit 1
+    echo
+    echo "ERROR:"
+    echo "Kata QEMU process was not found."
 
+    exit 1
 fi
 
 echo
@@ -692,7 +886,7 @@ echo "QEMU_PID=$QEMU_PID"
 echo "VCPU_TID=$VCPU_TID"
 
 # ============================================================
-# Verify that the supplied vCPU TID exists
+# Verify the vCPU TID
 # ============================================================
 
 remote \
@@ -700,15 +894,15 @@ remote \
 
 if [ "$?" -ne 0 ]; then
 
+    echo
     echo "ERROR:"
-    echo "VCPU TID $VCPU_TID does not belong to QEMU PID $QEMU_PID."
+    echo "vCPU TID $VCPU_TID does not belong to QEMU PID $QEMU_PID."
     echo
-    echo "Run:"
-    echo "  ps -T -p $QEMU_PID -o pid,tid,psr,pcpu,comm"
+    echo "Check QEMU threads using:"
     echo
-    echo "and update VCPU_TID."
-    exit 1
+    echo "ps -T -p $QEMU_PID -o pid,tid,psr,pcpu,comm"
 
+    exit 1
 fi
 
 # ============================================================
@@ -721,7 +915,7 @@ echo "[4] Configure ACA"
 if [ "$ACA_MODE" = "on" ]; then
 
     echo "ACA = ON"
-    echo "vCPU allowed cores = $ACA_CORES"
+    echo "vCPU allowed CPUs = $ACA_CORES"
 
     remote \
     "echo '$SUDO_PASS' | sudo -S -p '' \
@@ -730,7 +924,7 @@ if [ "$ACA_MODE" = "on" ]; then
 elif [ "$ACA_MODE" = "off" ]; then
 
     echo "ACA = OFF"
-    echo "vCPU allowed cores = $ALL_CORES"
+    echo "vCPU allowed CPUs = $ALL_CORES"
 
     remote \
     "echo '$SUDO_PASS' | sudo -S -p '' \
@@ -738,9 +932,11 @@ elif [ "$ACA_MODE" = "off" ]; then
 
 else
 
-    echo "ERROR: ACA_MODE must be on or off."
-    exit 1
+    echo
+    echo "ERROR:"
+    echo "ACA_MODE must be 'on' or 'off'."
 
+    exit 1
 fi
 
 echo
@@ -772,13 +968,13 @@ do
 
     echo
     echo "========================================"
-    echo "Message size: ${pkt} B"
-    echo "ACA mode    : ${ACA_MODE}"
-    echo "Result dir  : ${RESULT_DIR}"
+    echo "Message size : ${pkt} B"
+    echo "ACA mode     : ${ACA_MODE}"
+    echo "Result dir   : ${RESULT_DIR}"
     echo "========================================"
 
     # --------------------------------------------------------
-    # Save environment
+    # Save experiment environment
     # --------------------------------------------------------
 
     {
@@ -792,7 +988,8 @@ do
 
         remote \
         "echo '$SUDO_PASS' | sudo -S -p '' \
-        nerdctl exec '$CONTAINER_NAME' uname -r"
+        nerdctl exec '$CONTAINER_NAME' \
+        uname -r"
 
         echo
         echo "=== TCP congestion control ==="
@@ -803,7 +1000,7 @@ do
         sysctl net.ipv4.tcp_congestion_control"
 
         echo
-        echo "=== Available CCA ==="
+        echo "=== Available congestion controls ==="
 
         remote \
         "echo '$SUDO_PASS' | sudo -S -p '' \
@@ -818,11 +1015,10 @@ do
         -p '$QEMU_PID' \
         -o pid,tid,psr,pcpu,comm"
 
-    } > \
-    "$RESULT_DIR/environment.txt"
+    } > "$RESULT_DIR/environment.txt"
 
     # --------------------------------------------------------
-    # Save affinity
+    # Save vCPU affinity
     # --------------------------------------------------------
 
     {
@@ -838,8 +1034,7 @@ do
         "grep Cpus_allowed_list \
         /proc/$QEMU_PID/task/$VCPU_TID/status"
 
-    } > \
-    "$RESULT_DIR/affinity_check.txt"
+    } > "$RESULT_DIR/affinity_check.txt"
 
     # --------------------------------------------------------
     # Start netperf in the Kata guest
@@ -866,7 +1061,7 @@ do
     sleep 1
 
     # --------------------------------------------------------
-    # Monitoring
+    # Monitoring loop
     # --------------------------------------------------------
 
     for sample in $(seq 1 "$NUM_SAMPLES")
@@ -876,7 +1071,7 @@ do
         "pkt=${pkt} sample=${sample}/${NUM_SAMPLES}"
 
         # ----------------------------------------------------
-        # Guest network throughput / PPS
+        # Guest throughput and packet rate
         # ----------------------------------------------------
 
         remote \
@@ -891,7 +1086,7 @@ do
         VNSTAT_PID=$!
 
         # ----------------------------------------------------
-        # Guest netperf process CPU
+        # Guest netperf process CPU usage
         # ----------------------------------------------------
 
         remote \
@@ -903,7 +1098,7 @@ do
         NETPERF_PIDSTAT_PID=$!
 
         # ----------------------------------------------------
-        # Guest CPU usage
+        # Guest CPU utilization
         # ----------------------------------------------------
 
         remote \
@@ -917,7 +1112,7 @@ do
         MPSTAT_PID=$!
 
         # ----------------------------------------------------
-        # Host QEMU/vCPU thread CPU placement
+        # Host QEMU / vCPU thread monitoring
         # ----------------------------------------------------
 
         remote \
@@ -930,7 +1125,7 @@ do
         HOST_PIDSTAT_PID=$!
 
         # ----------------------------------------------------
-        # Wait for the four 10-second measurements
+        # Wait for the 10-second monitoring interval
         # ----------------------------------------------------
 
         wait "$VNSTAT_PID"
@@ -963,10 +1158,15 @@ echo
 echo "========================================"
 echo "Experiment completed"
 echo "========================================"
-17. Configure the Master-Side Script
+```
 
-The following variables must be updated before execution:
+---
 
+# 17. Configure the Experiment Script
+
+Before executing the script, update:
+
+```bash
 WORKER_USER="rpi3"
 
 WORKER_IP="192.168.0.X"
@@ -976,77 +1176,116 @@ SSH_PASS="0000"
 SUDO_PASS="0000"
 
 VCPU_TID="<VCPU_TID>"
+```
 
-Determine the worker IP on the Raspberry Pi:
+Check the Raspberry Pi worker IP using:
 
+```bash
 hostname -I
+```
 
 Determine the current QEMU PID:
 
-pgrep -af \
-qemu
+```bash
+pgrep -af qemu
+```
 
-Then:
+Then inspect its threads.
 
+```bash
 QEMU_PID=<QEMU_PID>
 
 ps -T \
--p "$QEMU_PID" \
--o pid,tid,psr,pcpu,comm
+  -p "$QEMU_PID" \
+  -o pid,tid,psr,pcpu,comm
+```
 
-Determine the vCPU TID and put it in:
+Set:
 
+```bash
 VCPU_TID="<VCPU_TID>"
-18. Select ACA OFF or ON
-ACA OFF
+```
 
-Edit:
+to the identified vCPU execution thread.
 
+---
+
+# 18. Run with ACA Disabled
+
+Set:
+
+```bash
 ACA_MODE="off"
+```
 
-The script automatically applies:
+The script applies:
 
+```bash
 taskset -pc \
-0-3 \
-<VCPU_TID>
+  0-3 \
+  <VCPU_TID>
+```
 
-Result directories are created as:
+The generated result directories are:
 
+```text
 p64_kata_off/
 p128_kata_off/
 p256_kata_off/
 p512_kata_off/
 p1024_kata_off/
-ACA ON
+```
 
-Edit:
+---
 
+# 19. Run with ACA Enabled
+
+Set:
+
+```bash
 ACA_MODE="on"
+```
 
-The script automatically applies:
+The script applies:
 
+```bash
 taskset -pc \
-2,3 \
-<VCPU_TID>
+  2,3 \
+  <VCPU_TID>
+```
 
-Result directories are created as:
+The generated result directories are:
 
+```text
 p64_kata_on/
 p128_kata_on/
 p256_kata_on/
 p512_kata_on/
 p1024_kata_on/
-19. Make the Script Executable
+```
+
+---
+
+# 20. Make the Script Executable
+
+```bash
 chmod +x \
-kata_netperf.sh
+  kata_netperf.sh
+```
 
 Run:
 
+```bash
 ./kata_netperf.sh
-20. Result Directory Structure
+```
+
+---
+
+# 21. Result Directory Structure
 
 For example:
 
+```text
 p64_kata_on/
 ├── affinity_check.txt
 ├── environment.txt
@@ -1055,27 +1294,38 @@ p64_kata_on/
 ├── pidstat_netperf_guest.txt
 ├── pidstat_vcpu_host.txt
 └── vnstat_guest.txt
+```
 
-The same structure is generated for:
+The same structure is created for:
 
+```text
 64 B
 128 B
 256 B
 512 B
 1024 B
-21. vnstat_guest.txt
+```
 
-The script uses:
+---
 
+# 22. `vnstat_guest.txt`
+
+The experiment uses:
+
+```bash
 vnstat -tr 10
+```
 
 and extracts:
 
+```bash
 awk '/tx/' \
-| awk '{print $2,$4}'
+  | awk '{print $2,$4}'
+```
 
-Example result:
+An example result with Pre-GSO and ACA enabled was:
 
+```text
 937.71 4505
 939.25 4724
 938.96 4674
@@ -1084,17 +1334,23 @@ Example result:
 940.22 4934
 937.69 4432
 940.42 4647
+```
 
-The first value represents TX throughput and the second value represents the packet-rate value reported by the guest interface.
+The first column represents the TX throughput reported by `vnstat`.
 
-The guest-side packet rate is a virtual-interface statistic.
+The second column represents the TX packet-rate value reported at the guest interface.
 
-It should not automatically be interpreted as the physical Ethernet frame rate because GSO may aggregate multiple TCP sends into a larger guest-side transmission unit.
+> The packet rate measured at the Kata guest interface is not necessarily equal to the physical Ethernet frame rate.
+>
+> GSO and virtual networking may cause one guest-side TX unit to represent a larger aggregated packet before segmentation at a lower layer.
 
-22. Example ACA-OFF Result
+---
 
-With Pre-GSO enabled and ACA disabled, an example 64-B result was:
+# 23. Example Result with ACA Disabled
 
+With the Pre-GSO guest kernel active and ACA disabled:
+
+```text
 635.74 48838
 853.63 19866
 382.18 35701
@@ -1104,24 +1360,32 @@ With Pre-GSO enabled and ACA disabled, an example 64-B result was:
 832.79 61113
 384.31 35815
 730.07 42997
+```
 
-The vCPU affinity was configured as:
+The vCPU affinity was changed using:
 
+```bash
 sudo taskset -pc \
-0,1,2,3 \
-399605
+  0,1,2,3 \
+  399605
+```
 
 Actual output:
 
+```text
 pid 399605's current affinity list: 1-3
 pid 399605's new affinity list: 0-3
+```
 
-This configuration allows the Kata workload vCPU to contend with network-processing cores.
+This allows the Kata workload vCPU to execute on the network-processing cores.
 
-23. Example ACA-ON Result
+---
 
-With Pre-GSO enabled and the vCPU separated from the network-processing cores, the 64-B result was:
+# 24. Example Result with ACA Enabled
 
+With the same Pre-GSO guest kernel and ACA enabled:
+
+```text
 937.71 4505
 939.25 4724
 938.96 4674
@@ -1130,245 +1394,325 @@ With Pre-GSO enabled and the vCPU separated from the network-processing cores, t
 940.22 4934
 937.69 4432
 940.42 4647
+```
 
-The corresponding affinity configuration is:
+The vCPU affinity was configured as:
 
+```bash
 sudo taskset -pc \
-2,3 \
-<VCPU_TID>
+  2,3 \
+  <VCPU_TID>
+```
 
-This restricts guest workload execution to CPUs 2 and 3 while the network-processing cores are excluded from the workload CPU set.
+This separates the host-side guest workload execution from the network-processing CPU cores.
 
-24. Check Which Host CPUs the vCPU Actually Used
+---
 
-The affinity configuration is stored in:
+# 25. Verify the vCPU Affinity from the Result Files
 
+The configured CPU affinity is stored in:
+
+```text
 affinity_check.txt
+```
 
 Example:
 
+```text
 === taskset ===
+
 pid 399605's current affinity list: 2,3
 
 === /proc status ===
+
 Cpus_allowed_list:    2-3
+```
 
-Runtime CPU placement is stored in:
+Runtime host-CPU placement is stored in:
 
+```text
 pidstat_vcpu_host.txt
-
-Search for the vCPU TID.
-
-grep \
-399605 \
-p64_kata_on/pidstat_vcpu_host.txt
-
-With ACA enabled, the CPU column should only contain the allowed workload CPUs.
+```
 
 For example:
 
-CPU 2
-CPU 3
+```bash
+grep \
+  399605 \
+  p64_kata_on/pidstat_vcpu_host.txt
+```
 
-and should not contain:
+With ACA enabled, the `CPU` column for the vCPU TID should only show:
 
-CPU 0
-CPU 1
-25. pidstat_netperf_guest.txt vs. pidstat_vcpu_host.txt
+```text
+2
+3
+```
 
-These two files measure different layers.
+and should not show:
 
-pidstat_netperf_guest.txt
+```text
+0
+1
+```
 
-This measures:
+---
 
-netperf process
-inside Kata guest
+# 26. `pidstat_netperf_guest.txt` and `pidstat_vcpu_host.txt`
 
-It shows the CPU utilization of the guest workload.
+These files measure different layers.
 
-If the Kata VM has one vCPU, netperf will generally execute on:
+## `pidstat_netperf_guest.txt`
 
+This file measures the guest-side application:
+
+```text
+netperf
+    ↓
+Kata guest kernel
+```
+
+It reports the CPU usage of the netperf process inside the microVM.
+
+If the VM has one vCPU, the guest application will generally execute on:
+
+```text
 guest CPU 0
+```
 
-However, this does not reveal which host physical CPU executes that guest vCPU.
+This does not indicate which physical host CPU executes the guest vCPU.
 
-pidstat_vcpu_host.txt
+---
 
-This measures:
+## `pidstat_vcpu_host.txt`
 
-QEMU/vCPU execution
-on the host
+This file measures the host-side execution context:
 
-Therefore, this is the important file for verifying ACA.
-
-The mapping is:
-
+```text
 Guest netperf
       ↓
 Guest vCPU
       ↓
-QEMU vCPU thread
+QEMU/KVM vCPU thread
       ↓
 Host physical CPU
+```
 
-ACA controls the final host-side CPU placement.
+Therefore, `pidstat_vcpu_host.txt` is the relevant file for verifying ACA host-side CPU isolation.
 
-26. Important: QEMU and vCPU IDs Change after VM Recreation
+---
 
-For example, one experiment used:
+# 27. QEMU PID and vCPU TID Change after VM Recreation
 
+For one experiment:
+
+```text
 QEMU PID = 399594
 vCPU TID = 399605
+```
 
-These values are only valid for that particular Kata VM.
+These values apply only to that particular Kata microVM.
 
 After:
 
+```bash
 sudo nerdctl rm -f \
-kata-test
+  kata-test
+```
+
+and recreating the VM:
+
+```bash
+sudo nerdctl run -d \
+  --name kata-test \
+  --runtime io.containerd.kata.v2 \
+  jjong2/all:latest \
+  sleep infinity
+```
+
+the QEMU PID and vCPU TID change.
+
+Therefore, before each new environment setup, run:
+
+```bash
+pgrep -af qemu
+```
 
 and:
 
-sudo nerdctl run \
-...
-
-the new microVM will have different PID and TID values.
-
-Therefore, before every new environment setup:
-
-pgrep -af \
-qemu
-
-and:
-
+```bash
 ps -T \
--p <QEMU_PID> \
--o pid,tid,psr,pcpu,comm
+  -p <QEMU_PID> \
+  -o pid,tid,psr,pcpu,comm
+```
 
-must be checked again.
+again.
 
-27. Recommended Experiment Order
+Do not reuse an old TID such as `399605` after recreating the VM.
 
-To evaluate Baseline, ACA, Pre-GSO, and ACA + Pre-GSO under the same CUBIC configuration:
+---
 
-1. Baseline CUBIC kernel
-   vmlinux-6.12.47-202
+# 28. Recommended Experimental Order
 
-   ACA OFF
-   vCPU affinity = 0-3
+All experiments use CUBIC.
 
+The experiment can be divided into four configurations.
 
-2. Baseline CUBIC kernel
-   vmlinux-6.12.47-202
+| Configuration | Guest kernel | Pre-GSO | ACA | CCA |
+|---|---|---:|---:|---|
+| Baseline | `vmlinux-6.12.47-202` | OFF | OFF | CUBIC |
+| ACA | `vmlinux-6.12.47-202` | OFF | ON | CUBIC |
+| Pre-GSO | `vmlinux-6.12.47-custom-cubic` | ON | OFF | CUBIC |
+| ACA + Pre-GSO | `vmlinux-6.12.47-custom-cubic` | ON | ON | CUBIC |
 
-   ACA ON
-   vCPU affinity = workload cores only
+Recommended sequence:
 
+```text
+1. Baseline
+   Kernel = vmlinux-6.12.47-202
+   ACA    = OFF
+   vCPU   = CPUs 0-3
 
-3. Pre-GSO CUBIC kernel
-   vmlinux-6.12.47-custom-cubic
+2. ACA
+   Kernel = vmlinux-6.12.47-202
+   ACA    = ON
+   vCPU   = workload CPU set
 
-   ACA OFF
-   vCPU affinity = 0-3
+3. Pre-GSO
+   Kernel = vmlinux-6.12.47-custom-cubic
+   ACA    = OFF
+   vCPU   = CPUs 0-3
 
+4. ACA + Pre-GSO
+   Kernel = vmlinux-6.12.47-custom-cubic
+   ACA    = ON
+   vCPU   = workload CPU set
+```
 
-4. Pre-GSO CUBIC kernel
-   vmlinux-6.12.47-custom-cubic
+---
 
-   ACA ON
-   vCPU affinity = workload cores only
+# 29. Pre-Experiment Checklist
 
-The resulting experimental matrix is:
+Before each experiment, verify:
 
-Configuration	Guest kernel	Pre-GSO	ACA	CCA
-Baseline	vmlinux-6.12.47-202	OFF	OFF	CUBIC
-ACA	vmlinux-6.12.47-202	OFF	ON	CUBIC
-Pre-GSO	vmlinux-6.12.47-custom-cubic	ON	OFF	CUBIC
-ACA + Pre-GSO	vmlinux-6.12.47-custom-cubic	ON	ON	CUBIC
-28. Pre-Experiment Checklist
-
-Before starting each experiment, verify the following.
-
-[ ] Correct guest kernel selected
-[ ] Kata VM recreated after kernel change
+```text
+[ ] Correct guest kernel is selected
+[ ] Kata VM was recreated after changing the kernel
 [ ] guest uname -r = 6.12.47
 [ ] tcp_congestion_control = cubic
 [ ] netperf is installed
 [ ] vnstat is installed
 [ ] mpstat is installed
 [ ] pidstat is installed
-[ ] only one experiment Kata VM is running
-[ ] current QEMU PID identified
-[ ] current vCPU TID identified
-[ ] NIC IRQ cores identified
-[ ] ACA affinity configured
-[ ] Cpus_allowed_list verified
+[ ] only the intended Kata experiment VM is running
+[ ] current QEMU PID is identified
+[ ] current vCPU TID is identified
+[ ] network IRQ CPU assignment is known
+[ ] ACA affinity is correctly configured
+[ ] Cpus_allowed_list is verified
 [ ] netperf server 192.168.0.5:12865 is running
-29. Quick ACA Configuration Commands
-Find QEMU
+```
+
+---
+
+# 30. Quick ACA Commands
+
+## Find QEMU PID
+
+```bash
 QEMU_PID=$(pgrep -f \
-'^/opt/kata/bin/qemu-system-aarch64 ' \
-| head -n 1)
+  '^/opt/kata/bin/qemu-system-aarch64 ' \
+  | head -n 1)
 
 echo "$QEMU_PID"
-Inspect threads
+```
+
+## Inspect QEMU threads
+
+```bash
 ps -T \
--p "$QEMU_PID" \
--o pid,tid,psr,pcpu,comm
-ACA OFF
+  -p "$QEMU_PID" \
+  -o pid,tid,psr,pcpu,comm
+```
+
+## ACA OFF
+
+```bash
 sudo taskset -pc \
-0-3 \
-<VCPU_TID>
-ACA ON
+  0-3 \
+  <VCPU_TID>
+```
+
+## ACA ON
+
+```bash
 sudo taskset -pc \
-2,3 \
-<VCPU_TID>
-Verify
+  2,3 \
+  <VCPU_TID>
+```
+
+## Verify affinity
+
+```bash
 taskset -pc \
-<VCPU_TID>
+  <VCPU_TID>
+```
+
+```bash
 grep \
-Cpus_allowed_list \
-/proc/$QEMU_PID/task/<VCPU_TID>/status
-Monitor actual execution
+  Cpus_allowed_list \
+  /proc/$QEMU_PID/task/<VCPU_TID>/status
+```
+
+## Monitor actual host CPU placement
+
+```bash
 pidstat \
--t \
--p "$QEMU_PID" \
-1 10
-30. Summary
+  -t \
+  -p "$QEMU_PID" \
+  1 10
+```
 
-The Kata experiment maps the workload differently from a standard container.
+---
 
-Standard container:
+# 31. Summary
 
-Container process
+The host-side execution structure of a standard container is:
+
+```text
+Container workload process
         ↓
 Host scheduler
         ↓
 Host physical CPU
+```
 
-Kata Containers:
+For Kata Containers:
 
+```text
 Guest workload
         ↓
 Guest scheduler
         ↓
 Guest vCPU
         ↓
-Host QEMU/KVM vCPU thread
+QEMU/KVM vCPU thread
         ↓
 Host scheduler
         ↓
 Host physical CPU
+```
 
-Therefore, ACA in Kata is implemented by isolating the host-side vCPU execution thread from the CPU cores responsible for NIC interrupt and network softirq processing.
+Therefore, ACA in the Kata environment controls the host-side **vCPU execution thread** instead of directly controlling the guest application process.
 
-The experiment then measures:
+The experiment collects:
 
-Guest throughput / PPS
+```text
+Guest network throughput / PPS
 Guest CPU utilization
 Guest netperf CPU utilization
-Host vCPU utilization
-Host physical-CPU placement
+Host QEMU/vCPU utilization
+Host physical CPU placement
+```
 
-while preserving the same netperf message sizes and monitoring structure used in the previous container experiments.
+while preserving the same netperf workload and sampling methodology used for the previous container experiments.
