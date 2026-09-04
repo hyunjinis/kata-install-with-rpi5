@@ -1125,6 +1125,17 @@ do
         HOST_PIDSTAT_PID=$!
 
         # ----------------------------------------------------
+        # Host CPU utilization
+        # ----------------------------------------------------
+
+        remote \
+        "mpstat -P ALL 10 1" \
+        | awk '/Average/' \
+        >> "$RESULT_DIR/mpstat_host.txt" &
+
+        HOST_MPSTAT_PID=$!
+
+        # ----------------------------------------------------
         # Wait for the 10-second monitoring interval
         # ----------------------------------------------------
 
@@ -1132,6 +1143,7 @@ do
         wait "$NETPERF_PIDSTAT_PID"
         wait "$MPSTAT_PID"
         wait "$HOST_PIDSTAT_PID"
+        wait "$HOST_MPSTAT_PID"
 
         sleep 3
 
